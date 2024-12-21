@@ -21,7 +21,7 @@ This project aims to revolutionize form-filling processes by leveraging voice-ba
   - **Completed On:** 12 December 2024  
 
 - **Task 4: API Research and Implementation**  
-  1. **Research Suitable APIs**  
+  1. **Research On APIs & Implementation**  
      - **Objective:** Identify and evaluate APIs for voice-to-text conversion and vernacular 
                       language integration.  
      - **Completed On:** 16 December 2024  
