@@ -43,10 +43,10 @@ This project aims to revolutionize form-filling processes by leveraging voice-ba
 
 ## Google Colab Task
 - **Task 1** Opps Concept in Python with examples .
- - **Completed On:** 26 December 2024
+  - **Completed On:** 26 December 2024
     
 - **Task 2** Concept of Tuple,list,sets,Dictionary Comparison and its examples .
- - **Completed On:** 27 December 2024
+  - **Completed On:** 27 December 2024
    
 - **Task 3** Explain Concept lambda function with examples .
   - **Completed On:** 28 December 2024
