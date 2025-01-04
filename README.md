@@ -8,6 +8,7 @@ This project aims to revolutionize form-filling processes by leveraging voice-ba
 
 ## WORK
 ### December 2024
+
 - **Task 1: Create Roadmap and Research**  
   - **Objective:** Create a detailed roadmap and research.  
   - **Completed On:** 9 December 2024  
@@ -21,7 +22,8 @@ This project aims to revolutionize form-filling processes by leveraging voice-ba
                    related to the project.  
   - **Completed On:** 12 December 2024  
 
-- **Task 4: API Research and Implementation**  
+- **Task 4: API Research and Implementation**
+- 
   1. **Research On APIs & Implementation**  
      - **Objective:** Identify and evaluate APIs for voice-to-text conversion and vernacular 
                       language integration.  
@@ -35,6 +37,7 @@ This project aims to revolutionize form-filling processes by leveraging voice-ba
 ---
 
 ## Certifications
+
 - **Python Basic Certificate**  
   - **Issued On:** 17 December 2024  
 
@@ -44,6 +47,7 @@ This project aims to revolutionize form-filling processes by leveraging voice-ba
 ---
 
 ## Google Colab Task
+
 - **Task 1:-** Opps Concept in Python with examples .
   - **Completed On:** 26 December 2024
     
@@ -54,6 +58,9 @@ This project aims to revolutionize form-filling processes by leveraging voice-ba
   - **Completed On:** 28 December 2024
     
 - **Task 4:-** Basic 10 Coding Questions of Flask,Django,Pyspark. which can ask in interview & coding round .
-  - **Completed On:** 29 December 2024 
+  - **Completed On:** 29 December 2024
+  - 
+- **Task 5:-** Basic SQL QUESTION and Queries .
+  - **Completed On:** 4 Jan 2025 
 
 
