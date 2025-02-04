@@ -1,0 +1,20 @@
+/* Button: Cancel */
+"button-cancel" = ":キャンセル";
+
+/* Button: OK */
+"button-ok" = "OK";
+
+/* Button: View */
+"button-view" = "表示";
+
+/* Button: Menu */
+"button-menu" = "メニュー";
+
+/* Button: Copy Link */
+"button-copy-link" = "リンクをコピー";
+
+/* Button: Open External */
+"button-open-external" = "外部ブラウザで開く";
+
+/* Button: Share External */
+"button-share-link" = "共有";

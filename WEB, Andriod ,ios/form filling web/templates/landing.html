@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero bg-primary text-white py-responsive">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h1 class="display-4 fw-bold mb-3" style="font-size: clamp(2rem, 5vw, 3.5rem);">Fill Easy</h1>
+                <p class="lead mb-4" style="font-size: clamp(1rem, 2vw, 1.25rem);">Create and share forms effortlessly with AI assistance and speech-to-text. The easiest way to build intelligent forms for any purpose.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    {% if current_user %}
+                        <a href="{{ url_for('create_form') }}" class="btn btn-light btn-lg">Create Form</a>
+                    {% else %}
+                        <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg">Get Started</a>
+                    {% endif %}
+                    <a href="#features" class="btn btn-outline-light btn-lg">Learn More</a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="{{ url_for('static', filename='img/hero-illustration.svg') }}" alt="Form Builder Illustration" class="img-fluid" style="max-width: min(100%, 600px);">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section id="features" class="py-responsive">
+    <div class="container">
+        <h2 class="text-center mb-5" style="font-size: clamp(1.8rem, 4vw, 2.5rem);">Powerful Features</h2>
+        <div class="row g-4">
+            <!-- Feature cards with responsive margins -->
+            <div class="col-md-6 col-lg-4 mb-responsive">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-primary bg-gradient text-white rounded-circle p-3 mb-3">
+                            <i class="fas fa-robot" style="font-size: clamp(1.5rem, 3vw, 2rem);"></i>
+                        </div>
+                        <h3 class="h5 mb-3" style="font-size: clamp(1.1rem, 2vw, 1.25rem);">AI Form Generation</h3>
+                        <p style="font-size: clamp(0.9rem, 1.5vw, 1rem);">Let AI create your forms by describing what you need in natural language. Powered by Google's Gemini API.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Speech-to-Text -->
+            <div class="col-md-6 col-lg-4 mb-responsive">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-primary bg-gradient text-white rounded-circle p-3 mb-3">
+                            <i class="fas fa-microphone" style="font-size: clamp(1.5rem, 3vw, 2rem);"></i>
+                        </div>
+                        <h3 class="h5 mb-3" style="font-size: clamp(1.1rem, 2vw, 1.25rem);">Speech-to-Text Input</h3>
+                        <p style="font-size: clamp(0.9rem, 1.5vw, 1rem);">Speak your form fields and responses. Built-in voice recognition for effortless form creation and filling.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Preview -->
+            <div class="col-md-6 col-lg-4 mb-responsive">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-primary bg-gradient text-white rounded-circle p-3 mb-3">
+                            <i class="fas fa-eye" style="font-size: clamp(1.5rem, 3vw, 2rem);"></i>
+                        </div>
+                        <h3 class="h5 mb-3" style="font-size: clamp(1.1rem, 2vw, 1.25rem);">Real-time Preview</h3>
+                        <p style="font-size: clamp(0.9rem, 1.5vw, 1rem);">See your form take shape as you build it. Preview exactly how your respondents will see it.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Management -->
+            <div class="col-md-6 col-lg-4 mb-responsive">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-primary bg-gradient text-white rounded-circle p-3 mb-3">
+                            <i class="fas fa-database" style="font-size: clamp(1.5rem, 3vw, 2rem);"></i>
+                        </div>
+                        <h3 class="h5 mb-3" style="font-size: clamp(1.1rem, 2vw, 1.25rem);">Response Management</h3>
+                        <p style="font-size: clamp(0.9rem, 1.5vw, 1rem);">Collect and manage responses efficiently. Export data to CSV for further analysis.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Code Sharing -->
+            <div class="col-md-6 col-lg-4 mb-responsive">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-primary bg-gradient text-white rounded-circle p-3 mb-3">
+                            <i class="fas fa-qrcode" style="font-size: clamp(1.5rem, 3vw, 2rem);"></i>
+                        </div>
+                        <h3 class="h5 mb-3" style="font-size: clamp(1.1rem, 2vw, 1.25rem);">QR Code Sharing</h3>
+                        <p style="font-size: clamp(0.9rem, 1.5vw, 1rem);">Share your forms instantly with QR codes. Perfect for events and physical locations.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Authentication -->
+            <div class="col-md-6 col-lg-4 mb-responsive">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-primary bg-gradient text-white rounded-circle p-3 mb-3">
+                            <i class="fas fa-user-shield" style="font-size: clamp(1.5rem, 3vw, 2rem);"></i>
+                        </div>
+                        <h3 class="h5 mb-3" style="font-size: clamp(1.1rem, 2vw, 1.25rem);">Secure Authentication</h3>
+                        <p style="font-size: clamp(0.9rem, 1.5vw, 1rem);">Protect your forms with secure user authentication. Manage access and permissions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="bg-light py-responsive">
+    <div class="container">
+        <h2 class="text-center mb-5" style="font-size: clamp(1.8rem, 4vw, 2.5rem);">How It Works</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="timeline">
+                    <div class="timeline-item mb-responsive">
+                        <div class="timeline-number">1</div>
+                        <h4 style="font-size: clamp(1.2rem, 2.5vw, 1.5rem);">Create Your Form</h4>
+                        <p style="font-size: clamp(0.9rem, 1.5vw, 1rem);">Use AI assistance or build manually with our intuitive form builder. Add various field types and customize as needed.</p>
+                    </div>
+                    <div class="timeline-item mb-responsive">
+                        <div class="timeline-number">2</div>
+                        <h4 style="font-size: clamp(1.2rem, 2.5vw, 1.5rem);">Share with Recipients</h4>
+                        <p style="font-size: clamp(0.9rem, 1.5vw, 1rem);">Share your form via link or QR code. Recipients can access it from any device.</p>
+                    </div>
+                    <div class="timeline-item mb-responsive">
+                        <div class="timeline-number">3</div>
+                        <h4 style="font-size: clamp(1.2rem, 2.5vw, 1.5rem);">Collect Responses</h4>
+                        <p style="font-size: clamp(0.9rem, 1.5vw, 1rem);">Gather responses in real-time. View, manage, and export data easily.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-responsive bg-primary text-white text-center">
+    <div class="container">
+        <h2 class="mb-4" style="font-size: clamp(1.8rem, 4vw, 2.5rem);">Ready to Get Started?</h2>
+        <p class="lead mb-4" style="font-size: clamp(1rem, 2vw, 1.25rem);">Join thousands of users who are already creating intelligent forms with our platform.</p>
+        {% if current_user %}
+            <a href="{{ url_for('create_form') }}" class="btn btn-light btn-lg px-4">Create Your First Form</a>
+        {% else %}
+            <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg px-4">Sign Up Now - It's Free!</a>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+/* Additional responsive styles */
+.hero {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    min-height: min(100vh, 800px);
+    display: flex;
+    align-items: center;
+}
+
+.feature-icon {
+    width: clamp(50px, 10vw, 60px);
+    height: clamp(50px, 10vw, 60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline {
+    position: relative;
+    padding: clamp(1rem, 3vh, 2rem) 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    width: 2px;
+    height: 100%;
+    background-color: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    padding: clamp(1rem, 3vh, 2rem);
+    background: white;
+    border-radius: 8px;
+    margin-left: 40px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
+
+.timeline-number {
+    position: absolute;
+    left: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(30px, 8vw, 40px);
+    height: clamp(30px, 8vw, 40px);
+    background: #0d6efd;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+@media (min-width: 768px) {
+    .timeline::before {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .timeline-item {
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (max-width: 575px) {
+    .hero {
+        text-align: center;
+    }
+    
+    .d-flex.gap-3 {
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %} 

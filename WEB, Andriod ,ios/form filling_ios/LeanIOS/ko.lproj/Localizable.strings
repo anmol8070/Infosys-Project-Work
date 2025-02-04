@@ -1,0 +1,20 @@
+/* Button: Cancel */
+"button-cancel" = "취소";
+
+/* Button: OK */
+"button-ok" = "확인";
+
+/* Button: View */
+"button-view" = "보기";
+
+/* Button: Menu */
+"button-menu" = "메뉴";
+
+/* Button: Copy Link */
+"button-copy-link" = "링크 주소 복사";
+
+/* Button: Open External */
+"button-open-external" = "외부 브라우저로 링크 열기";
+
+/* Button: Share External */
+"button-share-link" = "링크 공유";

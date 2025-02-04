@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>{{ form.title }}</h2>
+            {% if preview %}
+                <span class="badge bg-info">Preview Mode</span>
+    {% endif %}
+        </div>
+        
+                {% if form.description %}
+        <div class="card-body bg-light">
+            <p class="mb-0">{{ form.description }}</p>
+                </div>
+                {% endif %}
+
+        <div class="card-body">
+            <form id="response-form" method="POST" action="{{ url_for('submit_response', form_id=form.id) if not preview else '#' }}">
+                {% for field in form.fields %}
+                <div class="mb-4">
+                    <label for="field_{{ loop.index }}" class="form-label">
+                        {{ field.label }}
+                        {% if field.required %}
+                            <span class="text-danger">*</span>
+                        {% endif %}
+                    </label>
+
+                    {% if field.type == 'text' or field.type == 'textarea' or field.type == 'email' or field.type == 'tel' %}
+                    <div class="input-group">
+                            {% if field.type == 'textarea' %}
+                                <textarea class="form-control" id="field_{{ loop.index }}" name="field_{{ loop.index }}" rows="3"
+                                         {% if field.required %}required{% endif %}></textarea>
+                            {% else %}
+                                <input type="{{ field.type }}" class="form-control" id="field_{{ loop.index }}" name="field_{{ loop.index }}"
+                                       {% if field.required %}required{% endif %}>
+                            {% endif %}
+                            <button type="button" class="btn btn-outline-secondary mic-button" title="Click to speak">
+                                <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+
+                    {% elif field.type == 'number' %}
+                        <input type="number" class="form-control" id="field_{{ loop.index }}" name="field_{{ loop.index }}"
+                               {% if field.required %}required{% endif %}>
+                               
+                    {% elif field.type == 'select' %}
+                        <select class="form-control" id="field_{{ loop.index }}" name="field_{{ loop.index }}"
+                                {% if field.required %}required{% endif %}>
+                            <option value="">Select an option</option>
+                            {% for option in field.options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                            {% endfor %}
+                        </select>
+
+                    {% elif field.type == 'radio' %}
+                        {% set outer_loop = loop %}
+                        <div>
+                        {% for option in field.options %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="field_{{ outer_loop.index }}"
+                                           id="field_{{ outer_loop.index }}_{{ loop.index }}" value="{{ option }}"
+                                   {% if field.required %}required{% endif %}>
+                                    <label class="form-check-label" for="field_{{ outer_loop.index }}_{{ loop.index }}">
+                                        {{ option }}
+                                    </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% elif field.type == 'checkbox' %}
+                        {% set outer_loop = loop %}
+                        <div>
+                        {% for option in field.options %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="field_{{ outer_loop.index }}[]"
+                                           id="field_{{ outer_loop.index }}_{{ loop.index }}" value="{{ option }}">
+                                    <label class="form-check-label" for="field_{{ outer_loop.index }}_{{ loop.index }}">
+                                        {{ option }}
+                                    </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Forms
+                    </a>
+                    {% if preview %}
+                        <button type="button" class="btn btn-primary" onclick="previewSubmit()">
+                            <i class="fas fa-eye me-2"></i>Preview Submit
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Response
+                    </button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+
+{% if preview %}
+<!-- Preview Modal -->
+<div class="modal fade" id="preview-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Preview Submission</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="preview-data"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.mic-button {
+    transition: all 0.3s ease;
+}
+.mic-button.listening {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+</style>
+{% endif %}
+
+<!-- Main Script -->
+<script>
+// Initialize when document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSpeechRecognition();
+    initializeFormHandling();
+});
+
+function initializeSpeechRecognition() {
+    // Check for browser support
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        // Hide mic buttons if speech recognition is not supported
+        document.querySelectorAll('.mic-button').forEach(button => button.style.display = 'none');
+        console.warn('Speech recognition not supported in this browser');
+        return;
+    }
+
+    // Initialize speech recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    // Configure recognition settings
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    let currentInput = null;
+    let currentMicButton = null;
+    let isListening = false;
+
+    // Add click handlers to all mic buttons
+    document.querySelectorAll('.mic-button').forEach(button => {
+        button.addEventListener('click', function() {
+            if (isListening) {
+                // Stop listening
+                recognition.stop();
+                isListening = false;
+                this.classList.remove('listening');
+                this.innerHTML = '<i class="fas fa-microphone"></i>';
+            } else {
+                // Stop any other ongoing recognition
+                if (currentMicButton) {
+                    currentMicButton.classList.remove('listening');
+                    currentMicButton.innerHTML = '<i class="fas fa-microphone"></i>';
+                    recognition.stop();
+                }
+
+                // Start new recognition
+                currentInput = this.closest('.input-group').querySelector('input, textarea');
+                currentMicButton = this;
+                
+                try {
+                    recognition.start();
+                    isListening = true;
+                    this.classList.add('listening');
+                    this.innerHTML = '<i class="fas fa-stop"></i>';
+                } catch (error) {
+                    console.error('Speech recognition error:', error);
+                    showError('Failed to start speech recognition. Please try again.');
+                }
+            }
+        });
+    });
+
+    // Handle recognition results
+    recognition.onresult = function(event) {
+        if (!currentInput) return;
+
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        // Get the last result only to avoid repetition
+        const lastResultIndex = event.results.length - 1;
+        const lastResult = event.results[lastResultIndex];
+        
+        if (lastResult.isFinal) {
+            finalTranscript = lastResult[0].transcript;
+            
+            // Update input value with final transcript
+            if (currentInput.tagName.toLowerCase() === 'textarea') {
+                // For textarea, append the text
+                currentInput.value = currentInput.value 
+                    ? currentInput.value + ' ' + finalTranscript
+                    : finalTranscript;
+            } else {
+                // For regular inputs, replace the text
+                currentInput.value = finalTranscript;
+            }
+        } else {
+            // Show interim result without adding it permanently
+            interimTranscript = lastResult[0].transcript;
+            currentInput.value = interimTranscript;
+        }
+
+        // Trigger input event to update any validation
+        currentInput.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+
+    // Handle recognition end
+    recognition.onend = function() {
+        isListening = false;
+        if (currentMicButton) {
+            currentMicButton.classList.remove('listening');
+            currentMicButton.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+    };
+
+    // Handle recognition errors
+    recognition.onerror = function(event) {
+        console.error('Speech recognition error:', event.error);
+        isListening = false;
+        if (currentMicButton) {
+            currentMicButton.classList.remove('listening');
+            currentMicButton.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+        
+        let errorMessage = 'Speech recognition error';
+        switch (event.error) {
+            case 'no-speech':
+                errorMessage = 'No speech was detected. Please try again.';
+                break;
+            case 'audio-capture':
+                errorMessage = 'No microphone was found. Ensure it is plugged in and allowed.';
+                break;
+            case 'not-allowed':
+                errorMessage = 'Microphone permission was denied. Please allow access and try again.';
+                break;
+            case 'network':
+                errorMessage = 'Network error occurred. Please check your connection.';
+                break;
+            case 'aborted':
+                return; // Don't show error for user-initiated abort
+        }
+        showError(errorMessage);
+    };
+}
+
+function initializeFormHandling() {
+    const form = document.getElementById('response-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Clear any existing alerts
+            clearAlerts();
+            
+            // Validate required fields before submission
+            const formData = new FormData(form);
+            const missingFields = [];
+            
+            // Check each field for required values
+            form.querySelectorAll('[required]').forEach(field => {
+                const fieldName = field.getAttribute('name');
+                const fieldLabel = field.closest('.mb-4').querySelector('.form-label').textContent.trim().replace('*', '');
+                
+                if (!formData.get(fieldName)) {
+                    missingFields.push(fieldLabel);
+                }
+            });
+            
+            if (missingFields.length > 0) {
+                showError(`Please fill in the following required fields: ${missingFields.join(', ')}`);
+                return;
+            }
+
+            // Disable submit button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to submit response');
+                }
+                
+                showSuccess('Your response has been submitted successfully!');
+                
+                // Redirect to home page after successful submission
+                setTimeout(() => {
+                    window.location.href = '{{ url_for("home") }}';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Submission error:', error);
+                showError(error.message);
+                
+                // Re-enable submit button on error
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Response';
+            }
+        });
+    }
+}
+
+// Helper functions
+function clearAlerts() {
+    document.querySelectorAll('.alert').forEach(alert => alert.remove());
+}
+
+function showError(message) {
+    showAlert(message, 'danger');
+}
+
+function showSuccess(message) {
+    showAlert(message, 'success');
+}
+
+function showAlert(message, type) {
+    const alertsContainer = document.getElementById('alerts-container');
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.innerHTML = `
+        <strong>${type === 'success' ? 'Success!' : 'Error!'}</strong> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Add alerts container if it doesn't exist
+    if (!alertsContainer) {
+        const container = document.createElement('div');
+        container.id = 'alerts-container';
+        container.className = 'mb-4';
+        const form = document.getElementById('response-form');
+        form.parentNode.insertBefore(container, form);
+    }
+    
+    document.getElementById('alerts-container').appendChild(alert);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => alert.remove(), 5000);
+}
+</script>
+
+{% if preview %}
+<!-- Preview Script -->
+<script>
+// Initialize preview functionality
+(function() {
+    // Store form fields data safely
+    let formFields;
+    try {
+        formFields = JSON.parse('{{ form.fields|tojson|safe }}');
+    } catch (error) {
+        console.error('Error parsing form fields:', error);
+        formFields = [];
+    }
+    
+    // Add preview submit function to window
+    window.previewSubmit = function() {
+        const form = document.getElementById('response-form');
+        const formData = new FormData(form);
+        
+        // Validate required fields
+        const missingFields = [];
+        formFields.forEach((field, index) => {
+            if (field.required) {
+                const fieldName = `field_${index + 1}`;
+                const value = field.type === 'checkbox' 
+                    ? formData.getAll(fieldName + '[]').length 
+                    : formData.get(fieldName);
+                    
+                if (!value) {
+                    missingFields.push(field.label);
+                }
+            }
+        });
+        
+        if (missingFields.length > 0) {
+            showError(`Please fill in the following required fields: ${missingFields.join(', ')}`);
+            return;
+        }
+        
+        let previewHtml = '<dl class="row">';
+        
+        formFields.forEach((field, index) => {
+            const fieldName = `field_${index + 1}`;
+            const fieldLabel = field.label;
+            let fieldValue;
+            
+            if (field.type === 'checkbox') {
+                const values = formData.getAll(fieldName + '[]');
+                fieldValue = values.length ? values.join(', ') : 'None selected';
+            } else {
+                fieldValue = formData.get(fieldName) || 'No response';
+            }
+            
+            previewHtml += `
+                <dt class="col-sm-4">${fieldLabel}</dt>
+                <dd class="col-sm-8">${fieldValue}</dd>
+            `;
+        });
+        
+        previewHtml += '</dl>';
+        document.getElementById('preview-data').innerHTML = previewHtml;
+        new bootstrap.Modal(document.getElementById('preview-modal')).show();
+    };
+})();
+    </script>
+{% endif %}
+
+{% endblock %}

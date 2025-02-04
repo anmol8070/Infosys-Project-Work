@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Back/Forward Navigation -->
+<div class="navigation-buttons">
+    <button onclick="history.back()" class="btn btn-outline-primary" title="Go Back">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+    <button onclick="history.forward()" class="btn btn-outline-primary" title="Go Forward">
+        <i class="fas fa-arrow-right"></i>
+    </button>
+</div>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-list-alt me-2"></i>My Forms</h1>
+        <a href="{{ url_for('create_form') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create New Form
+        </a>
+    </div>
+
+    {% if forms %}
+    <div class="row">
+        {% for form in forms %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-alt me-2"></i>{{ form.title }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {{ form.description or 'No description' }}
+                    </p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>Created: {{ form.created_at|datetime }}
+                            <br>
+                            <i class="fas fa-edit me-1"></i>Updated: {{ form.updated_at|datetime }}
+                        </small>
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100" role="group">
+                        <a href="{{ url_for('view_form', form_id=form.id) }}" class="btn btn-outline-primary" title="View Form">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ url_for('edit_form', form_id=form.id) }}" class="btn btn-outline-secondary" title="Edit Form">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                        <a href="{{ url_for('view_responses', form_id=form.id) }}" class="btn btn-outline-info" title="View Responses">
+                            <i class="fas fa-chart-bar"></i>
+                        </a>
+                        <button type="button" class="btn btn-outline-danger delete-form" data-form-id="{{ form.id }}" title="Delete Form">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-clipboard-list fa-4x mb-3 text-muted"></i>
+        <h3>No forms yet</h3>
+        <p>Create your first form to get started!</p>
+        <a href="{{ url_for('create_form') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create Form
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>Delete Form
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <i class="fas fa-trash-alt me-2"></i>
+                Are you sure you want to delete this form? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="fas fa-trash-alt me-2"></i>Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let formToDelete = null;
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    
+    // Handle delete button clicks
+    document.querySelectorAll('.delete-form').forEach(button => {
+        button.addEventListener('click', function() {
+            formToDelete = this.dataset.formId;
+            deleteModal.show();
+        });
+    });
+    
+    // Handle delete confirmation
+    document.getElementById('confirmDelete').addEventListener('click', async function() {
+        if (!formToDelete) return;
+        
+        try {
+            const response = await fetch(`/forms/${formToDelete}/delete`, {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                // Reload page after successful deletion
+                window.location.reload();
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Error deleting form');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error deleting form');
+        }
+        
+        deleteModal.hide();
+    });
+});
+</script>
+{% endblock %}

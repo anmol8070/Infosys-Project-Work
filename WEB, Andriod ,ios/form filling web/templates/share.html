@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>Share Form: {{ form.title }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h5>Share Link</h5>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="share-url" value="{{ share_url }}" readonly>
+                    <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard()">Copy</button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h5>QR Code</h5>
+                <div class="text-center">
+                    <img src="{{ url_for('generate_qr', form_id=form.id) }}" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+                    <div class="mt-2">
+                        <a href="{{ url_for('generate_qr', form_id=form.id) }}" class="btn btn-outline-secondary" download="form_qr.png">
+                            Download QR Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="{{ url_for('view_form', form_id=form.id) }}" class="btn btn-primary">Back to Form</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard() {
+    const shareUrl = document.getElementById('share-url');
+    shareUrl.select();
+    shareUrl.setSelectionRange(0, 99999); // For mobile devices
+    
+    try {
+        navigator.clipboard.writeText(shareUrl.value);
+        alert('Link copied to clipboard!');
+    } catch (err) {
+        document.execCommand('copy');
+        alert('Link copied to clipboard!');
+    }
+}
+</script>
+{% endblock %} 

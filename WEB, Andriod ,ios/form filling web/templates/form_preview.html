@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Preview Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-eye me-2"></i>Form Preview</h2>
+                <div>
+                    <a href="{{ url_for('edit_form', form_id=form.id) }}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-pencil-alt me-2"></i>Edit Form
+                    </a>
+                    <a href="{{ url_for('share_form', form_id=form.id) }}" class="btn btn-success">
+                        <i class="fas fa-share-alt me-2"></i>Share Form
+                    </a>
+                </div>
+            </div>
+
+            <!-- Form Preview Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-file-alt me-2"></i>{{ form.title }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if form.description %}
+                    <p class="card-text mb-4">
+                        <i class="fas fa-info-circle me-2"></i>{{ form.description }}
+                    </p>
+                    <hr>
+                    {% endif %}
+
+                    <!-- Preview Form Fields -->
+                    {% for field in form.fields %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            {{ field.label }}
+                            {% if field.required %}
+                            <span class="text-danger">*</span>
+                            {% endif %}
+                        </label>
+
+                        {% if field.type == 'text' or field.type == 'email' or field.type == 'tel' %}
+                        <input type="{{ field.type }}" 
+                               class="form-control" 
+                               placeholder="Enter {{ field.label|lower }}"
+                               disabled>
+
+                        {% elif field.type == 'textarea' %}
+                        <textarea class="form-control" 
+                                  rows="3" 
+                                  placeholder="Enter {{ field.label|lower }}"
+                                  disabled></textarea>
+
+                        {% elif field.type == 'select' %}
+                        <select class="form-select" disabled>
+                            <option value="">Select {{ field.label|lower }}</option>
+                            {% for option in field.options %}
+                            <option value="{{ option }}">{{ option }}</option>
+                            {% endfor %}
+                        </select>
+
+                        {% elif field.type == 'radio' %}
+                        <div>
+                            {% for option in field.options %}
+                            <div class="form-check">
+                                <input type="radio" 
+                                       class="form-check-input" 
+                                       disabled>
+                                <label class="form-check-label">{{ option }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        {% elif field.type == 'checkbox' %}
+                        <div>
+                            {% for option in field.options %}
+                            <div class="form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       disabled>
+                                <label class="form-check-label">{{ option }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if field.help_text %}
+                        <div class="form-text text-muted">
+                            <i class="fas fa-question-circle me-1"></i>{{ field.help_text }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <!-- Preview Submit Button -->
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" disabled>
+                            <i class="fas fa-paper-plane me-2"></i>Submit Form
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Actions -->
+            <div class="mt-4 d-flex justify-content-between">
+                <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Forms
+                </a>
+                <div>
+                    <a href="{{ url_for('view_responses', form_id=form.id) }}" class="btn btn-info">
+                        <i class="fas fa-chart-bar me-2"></i>View Responses
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background Elements -->
+    <circle cx="500" cy="100" r="80" fill="#e3f2fd" opacity="0.5"/>
+    <circle cx="100" cy="300" r="60" fill="#e3f2fd" opacity="0.5"/>
+    
+    <!-- Form Elements -->
+    <rect x="150" y="50" width="300" height="300" rx="10" fill="white" stroke="#0d6efd" stroke-width="2"/>
+    
+    <!-- Form Header -->
+    <rect x="170" y="70" width="260" height="40" rx="5" fill="#e3f2fd"/>
+    <rect x="190" y="85" width="120" height="10" rx="2" fill="#0d6efd"/>
+    
+    <!-- Form Fields -->
+    <rect x="170" y="130" width="260" height="30" rx="5" fill="#f8f9fa"/>
+    <rect x="170" y="170" width="260" height="30" rx="5" fill="#f8f9fa"/>
+    <rect x="170" y="210" width="260" height="60" rx="5" fill="#f8f9fa"/>
+    
+    <!-- Radio Buttons -->
+    <circle cx="185" cy="290" r="8" fill="#0d6efd"/>
+    <circle cx="185" cy="310" r="8" fill="#dee2e6"/>
+    <rect x="200" y="285" width="100" height="10" rx="2" fill="#495057"/>
+    <rect x="200" y="305" width="100" height="10" rx="2" fill="#495057"/>
+    
+    <!-- Decorative Elements -->
+    <path d="M50,150 Q100,50 150,150" stroke="#0d6efd" stroke-width="2" fill="none"/>
+    <path d="M450,250 Q500,350 550,250" stroke="#0d6efd" stroke-width="2" fill="none"/>
+    
+    <!-- AI Elements -->
+    <circle cx="500" cy="200" r="30" fill="#0d6efd"/>
+    <path d="M485,200 L515,200 M500,185 L500,215" stroke="white" stroke-width="4"/>
+    <circle cx="500" cy="200" r="20" fill="none" stroke="white" stroke-width="2"/>
+</svg> 

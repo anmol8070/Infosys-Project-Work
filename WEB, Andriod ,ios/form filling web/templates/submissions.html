@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Submissions</title>
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 24px;
+        }
+        .header {
+            border-bottom: 3px solid #673AB7;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #202124;
+            margin: 0;
+        }
+        .back-button {
+            background-color: #673AB7;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .back-button:hover {
+            background-color: #5c34a4;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dadce0;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #202124;
+            font-weight: 500;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .no-submissions {
+            text-align: center;
+            color: #5f6368;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Form Submissions</h1>
+            <a href="/" class="back-button">Back to Form</a>
+        </div>
+        {% if submissions %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Subject</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                <tr>
+                    <td>{{ submission[0] }}</td>
+                    <td>{{ submission[1] }}</td>
+                    <td>{{ submission[2] }}</td>
+                    <td>{{ submission[3] }}</td>
+                    <td>{{ submission[4] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-submissions">
+            <p>No submissions yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

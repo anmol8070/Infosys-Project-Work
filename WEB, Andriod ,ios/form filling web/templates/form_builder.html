@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div id="alerts-container"></div>
+    <div id="loader" style="display: none;" class="alert alert-info"></div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ 'Edit Form' if form else 'Create New Form' }}</h2>
+                </div>
+        <div class="card-body">
+            <!-- Add AI Form Generation Section -->
+            <div class="mb-4">
+                <div class="d-flex gap-2 align-items-start">
+                    <div class="flex-grow-1">
+                        <label for="ai-description" class="form-label">Generate Form with AI</label>
+                        <textarea class="form-control" id="ai-description" rows="2" 
+                                placeholder="Describe the form you want to create (e.g., 'Create a contact form with name, email, and message fields')"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-primary mt-4" id="generate-form-btn">
+                        <i class="fas fa-magic me-2"></i>Generate
+                    </button>
+                </div>
+            </div>
+
+            <form id="form-builder">
+                {% if form %}
+                <input type="hidden" id="form-id" value="{{ form.id }}">
+                {% endif %}
+
+                <div class="mb-3">
+                    <label for="form-title" class="form-label">Form Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="form-title" value="{{ form.title if form else '' }}" required>
+            </div>
+
+                <div class="mb-3">
+                    <label for="form-description" class="form-label">Description</label>
+                    <textarea class="form-control" id="form-description" rows="3">{{ form.description if form else '' }}</textarea>
+            </div>
+
+                <div class="mb-3">
+                    <label for="form-theme" class="form-label">Theme</label>
+                    <select class="form-control" id="form-theme">
+                        <option value="default" {% if not form or form.theme == 'default' %}selected{% endif %}>Default</option>
+                        <option value="dark" {% if form and form.theme == 'dark' %}selected{% endif %}>Dark</option>
+                        <option value="light" {% if form and form.theme == 'light' %}selected{% endif %}>Light</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Form Fields <span class="text-danger">*</span></label>
+                    <div id="fields-container"></div>
+                    <button type="button" class="btn btn-outline-primary mt-2" id="add-field-btn">
+                        <i class="fas fa-plus me-2"></i>Add Field
+                    </button>
+            </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Forms
+                    </a>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info" id="preview-btn">
+                            <i class="fas fa-eye me-2"></i>Preview
+                        </button>
+                        <button type="button" class="btn btn-primary" id="save-btn">
+                            <i class="fas fa-save me-2"></i>Save Form
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+
+<!-- Field Modal -->
+<div class="modal fade" id="field-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Field</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="field-label" class="form-label">Field Label <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="field-label" required>
+                        <button type="button" class="btn btn-outline-secondary mic-button" title="Click to speak">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="field-type" class="form-label">Field Type <span class="text-danger">*</span></label>
+                    <select class="form-control" id="field-type" required>
+                        <option value="text">Text</option>
+                        <option value="textarea">Text Area</option>
+                        <option value="number">Number</option>
+                        <option value="email">Email</option>
+                        <option value="tel">Phone</option>
+                        <option value="select">Dropdown</option>
+                        <option value="radio">Radio Buttons</option>
+                        <option value="checkbox">Checkboxes</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="field-required">
+                        <label class="form-check-label" for="field-required">Required Field</label>
+                    </div>
+                </div>
+                
+                <div id="options-container" style="display: none;">
+                    <label class="form-label">Options <span class="text-danger">*</span></label>
+                    <div id="field-options" class="mb-2"></div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="add-option-btn">
+                        <i class="fas fa-plus me-2"></i>Add Option
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-field-btn">Add Field</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.mic-button {
+    transition: all 0.3s ease;
+}
+.mic-button.listening {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+</style>
+
+{% if form %}
+<script>
+    // Pass form data to JavaScript
+    window.formData = JSON.parse('{{ form|tojson|safe }}');
+</script>
+{% else %}
+<script>
+    window.formData = null;
+</script>
+{% endif %}
+
+<!-- Include form builder JavaScript -->
+<script src="{{ url_for('static', filename='js/create.js') }}"></script>
+
+<!-- Speech recognition script -->
+<script>
+// Speech recognition initialization
+function initializeSpeechRecognition() {
+    // Check for browser support
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        // Hide mic buttons if speech recognition is not supported
+        document.querySelectorAll('.mic-button').forEach(button => button.style.display = 'none');
+        console.warn('Speech recognition not supported in this browser');
+        return;
+    }
+
+    // Initialize speech recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    // Configure recognition settings
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    let currentInput = null;
+    let currentMicButton = null;
+    let isListening = false;
+
+    // Add click handlers to all mic buttons
+    document.querySelectorAll('.mic-button').forEach(button => {
+        button.addEventListener('click', function() {
+            if (isListening) {
+                // Stop listening
+                recognition.stop();
+                isListening = false;
+                this.classList.remove('listening');
+                this.innerHTML = '<i class="fas fa-microphone"></i>';
+            } else {
+                // Stop any other ongoing recognition
+                if (currentMicButton) {
+                    currentMicButton.classList.remove('listening');
+                    currentMicButton.innerHTML = '<i class="fas fa-microphone"></i>';
+                    recognition.stop();
+                }
+
+                // Start new recognition
+                currentInput = this.closest('.input-group').querySelector('input, textarea');
+                currentMicButton = this;
+                
+                try {
+                    recognition.start();
+                    isListening = true;
+                    this.classList.add('listening');
+                    this.innerHTML = '<i class="fas fa-stop"></i>';
+                } catch (error) {
+                    console.error('Speech recognition error:', error);
+                    showError('Failed to start speech recognition. Please try again.');
+                }
+            }
+        });
+    });
+
+    // Handle recognition results
+    recognition.onresult = function(event) {
+        if (!currentInput) return;
+
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        // Get the last result only to avoid repetition
+        const lastResultIndex = event.results.length - 1;
+        const lastResult = event.results[lastResultIndex];
+        
+        if (lastResult.isFinal) {
+            finalTranscript = lastResult[0].transcript;
+            
+            // Update input value with final transcript
+            if (currentInput.tagName.toLowerCase() === 'textarea') {
+                // For textarea, append the text
+                currentInput.value = currentInput.value 
+                    ? currentInput.value + ' ' + finalTranscript
+                    : finalTranscript;
+            } else {
+                // For regular inputs, replace the text
+                currentInput.value = finalTranscript;
+            }
+        } else {
+            // Show interim result without adding it permanently
+            interimTranscript = lastResult[0].transcript;
+            currentInput.value = interimTranscript;
+        }
+
+        // Trigger input event to update any validation
+        currentInput.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+
+    // Handle recognition end
+    recognition.onend = function() {
+        isListening = false;
+        if (currentMicButton) {
+            currentMicButton.classList.remove('listening');
+            currentMicButton.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+    };
+
+    // Handle recognition errors
+    recognition.onerror = function(event) {
+        console.error('Speech recognition error:', event.error);
+        isListening = false;
+        if (currentMicButton) {
+            currentMicButton.classList.remove('listening');
+            currentMicButton.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+        
+        let errorMessage = 'Speech recognition error';
+        switch (event.error) {
+            case 'no-speech':
+                errorMessage = 'No speech was detected. Please try again.';
+                break;
+            case 'audio-capture':
+                errorMessage = 'No microphone was found. Ensure it is plugged in and allowed.';
+                break;
+            case 'not-allowed':
+                errorMessage = 'Microphone permission was denied. Please allow access and try again.';
+                break;
+            case 'network':
+                errorMessage = 'Network error occurred. Please check your connection.';
+                break;
+            case 'aborted':
+                return; // Don't show error for user-initiated abort
+        }
+        showError(errorMessage);
+    };
+}
+
+// Initialize speech recognition when document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSpeechRecognition();
+});
+</script>
+{% endblock %}

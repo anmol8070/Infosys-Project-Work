@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-file-alt me-2"></i>{{ form.title }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if form.description %}
+                    <p class="card-text mb-4">
+                        <i class="fas fa-info-circle me-2"></i>{{ form.description }}
+                    </p>
+                    {% endif %}
+
+                    <form id="submissionForm" method="POST">
+                        {% for field in form.fields %}
+                        <div class="mb-3">
+                            <label class="form-label">
+                                {{ field.label }}
+                                {% if field.required %}
+                                <span class="text-danger">*</span>
+                                {% endif %}
+                            </label>
+                            
+                            {% if field.type == 'text' or field.type == 'email' or field.type == 'tel' %}
+                            <div class="input-group">
+                                <input type="{{ field.type }}" 
+                                       name="{{ field.id }}" 
+                                       class="form-control"
+                                       {% if field.required %}required{% endif %}
+                                       placeholder="Enter {{ field.label|lower }}">
+                                <button type="button" 
+                                        class="btn btn-outline-secondary mic-button" 
+                                        data-field="{{ field.id }}"
+                                        title="Click to speak">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                            </div>
+                            {% elif field.type == 'textarea' %}
+                            <div class="input-group">
+                                <textarea name="{{ field.id }}" 
+                                          class="form-control"
+                                          rows="3"
+                                          {% if field.required %}required{% endif %}
+                                          placeholder="Enter {{ field.label|lower }}"></textarea>
+                                <button type="button" 
+                                        class="btn btn-outline-secondary mic-button" 
+                                        data-field="{{ field.id }}"
+                                        title="Click to speak">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                            </div>
+                            {% elif field.type == 'select' %}
+                            <select name="{{ field.id }}" class="form-select" {% if field.required %}required{% endif %}>
+                                <option value="">Select {{ field.label|lower }}</option>
+                                {% for option in field.options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                            {% elif field.type == 'radio' %}
+                            <div>
+                                {% for option in field.options %}
+                                <div class="form-check">
+                                    <input type="radio" 
+                                           name="{{ field.id }}" 
+                                           value="{{ option }}" 
+                                           class="form-check-input"
+                                           id="{{ field.id }}_{{ loop.index }}"
+                                           {% if field.required %}required{% endif %}>
+                                    <label class="form-check-label" for="{{ field.id }}_{{ loop.index }}">
+                                        {{ option }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% elif field.type == 'checkbox' %}
+                            <div>
+                                {% for option in field.options %}
+                                <div class="form-check">
+                                    <input type="checkbox" 
+                                           name="{{ field.id }}" 
+                                           value="{{ option }}" 
+                                           class="form-check-input"
+                                           id="{{ field.id }}_{{ loop.index }}">
+                                    <label class="form-check-label" for="{{ field.id }}_{{ loop.index }}">
+                                        {{ option }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Form
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let recognition = null;
+    try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+    } catch (e) {
+        console.error('Speech recognition not supported:', e);
+    }
+
+    if (recognition) {
+        let currentButton = null;
+        let currentInput = null;
+
+        // Handle mic button clicks
+        document.querySelectorAll('.mic-button').forEach(button => {
+            button.addEventListener('click', function() {
+                if (currentButton && currentButton !== this) {
+                    currentButton.classList.remove('listening');
+                    recognition.stop();
+                }
+
+                const fieldId = this.dataset.field;
+                currentInput = document.querySelector(`[name="${fieldId}"]`);
+                
+                if (this.classList.contains('listening')) {
+                    recognition.stop();
+                    this.classList.remove('listening');
+                    currentButton = null;
+                } else {
+                    this.classList.add('listening');
+                    currentButton = this;
+                    recognition.start();
+                }
+            });
+        });
+
+        // Handle speech recognition results
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            if (currentInput) {
+                if (currentInput.tagName.toLowerCase() === 'textarea') {
+                    currentInput.value += (currentInput.value ? ' ' : '') + transcript;
+                } else {
+                    currentInput.value = transcript;
+                }
+            }
+        };
+
+        // Handle speech recognition end
+        recognition.onend = function() {
+            if (currentButton) {
+                currentButton.classList.remove('listening');
+                currentButton = null;
+            }
+        };
+
+        // Handle speech recognition errors
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            if (currentButton) {
+                currentButton.classList.remove('listening');
+                currentButton = null;
+            }
+        };
+    } else {
+        // Hide mic buttons if speech recognition is not supported
+        document.querySelectorAll('.mic-button').forEach(button => {
+            button.style.display = 'none';
+        });
+    }
+
+    // Handle form submission
+    document.getElementById('submissionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+
+        try {
+            const formData = new FormData(this);
+            const response = await fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                window.location.href = '/submission-success';
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Error submitting form');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error submitting form');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Form';
+        }
+    });
+});
+</script>
+{% endblock %}
