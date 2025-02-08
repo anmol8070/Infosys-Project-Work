@@ -5,7 +5,7 @@
 
 we are using an free provider it may take 15 to 20 minutes for signing up
 
-u can login by this details
+you can login by this details
 
 # Email id : venkatasairevanthsannidhi@gmail.com Password : Svsr@2004
 
@@ -14,7 +14,7 @@ This project aims to revolutionize form-filling processes by leveraging voice-ba
 
 ---
 ## Git Links-Web,Android,ios
-we have made an Android and ios applications too u can check our android and ios repos from here u
+we have made an Web,Android and ios applications too you can check our android and ios repos from here u
 
 https://github.com/anmol8070/Form-Filling-Web.git<br>
 https://github.com/anmol8070/Form-Filling-Android.git<br>
