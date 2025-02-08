@@ -1,11 +1,20 @@
 
 # Beyond QWERTY: Form Filling Vernacular Voyage with Voice Versatility
 
+# Deployment Link : https://render-3-l3hi.onrender.com/login
+
+we are using an free provider it may take 15 to 20 minutes for signing up
+
+u can login by this details
+
+# Email id : venkatasairevanthsannidhi@gmail.com Password : Svsr@2004
+
 ## Project Overview
 This project aims to revolutionize form-filling processes by leveraging voice-based input, emphasizing vernacular language support. The goal is to enhance accessibility and efficiency for users across diverse linguistic backgrounds.
 
 ---
 ## Git Links-Web,Android,ios
+we have made an Android and ios applications too u can check our android and ios repos from here u
 
 https://github.com/anmol8070/Form-Filling-Web.git<br>
 https://github.com/anmol8070/Form-Filling-Android.git<br>
